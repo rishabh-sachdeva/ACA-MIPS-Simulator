@@ -98,17 +98,18 @@ public class ID {
 		if(inst_name==null) {
 			return false;
 		}
-		//handle_branch_instructions();
-		//if(!busy) {
 		busy= true;
 		if(!inst_name.equalsIgnoreCase("BNE")&& !inst_name.equalsIgnoreCase("J")
 				&& !inst_name.equalsIgnoreCase("BEQ") && !inst_name.equalsIgnoreCase("HLT")) {
 			getReadRegisters_3_args();
 		}
 		switch(inst_name) {
+
 		case "HLT":
 			IF.instructions.clear();
 			System.out.println("HLT  "+  cycle_num);
+			ID.setInst_name(null);
+			ID.setInstruction(null);
 			return true;
 		case "L.D":
 			//F1, 32(R2)
@@ -143,8 +144,7 @@ public class ID {
 			//3 args
 			if(inst_name.equalsIgnoreCase("BNE")|| inst_name.equalsIgnoreCase("J")
 					|| inst_name.equalsIgnoreCase("BEQ")) {
-				//do nothing - already handled
-				handle_branch_instructions();
+				handle_branch_instructions(cycle_num);
 				return true;
 			}
 			decodeThreeArgsIntInstructions(instruction);
@@ -213,7 +213,7 @@ public class ID {
 		}
 	}
 
-	private static void handle_branch_instructions() {
+	private static void handle_branch_instructions(int cycle_num) {
 		String label = null;
 		if(inst_name.equalsIgnoreCase("J")) {
 			//J branch found
@@ -222,7 +222,7 @@ public class ID {
 			label = instruction.trim().split(" ",2)[1].trim().split(",")[2];
 
 		}
-		if(label!=null && !label.isEmpty() && continue_loop()) {
+		if(label!=null && !label.isEmpty() && continue_loop(cycle_num)) {
 			//flush fetch stage here
 			IF.idx=InstParser.loop_map.get(label.trim());//starting loop point
 			IF.setInstruction(null);
@@ -230,19 +230,20 @@ public class ID {
 			IF.setBranch_detected(true);
 			//nullifyInstructions();
 			burn_cycle();
-			nullifyInstructions_branch();
+			nullifyInstructions_branch(cycle_num);
 		}
 	}
-	private static void nullifyInstructions_branch() {
+	private static void nullifyInstructions_branch(int cycle_num) {
 		if(curr_cycle>=cycle_count) {
 			curr_cycle=0;
 			busy = false;
+			System.out.println(instruction+"\t"+cycle_num);
 			setInst_name(null);
 			setInstruction(null);
 		}		
 	}
 
-	private static boolean continue_loop() {
+	private static boolean continue_loop(int cycle_num) {
 		String[] details = instruction.trim().split(" ",2)[1].split(",");
 		String first_arg=details[0].trim();
 		String second_arg = details[1].trim();
@@ -255,7 +256,7 @@ public class ID {
 			if(inst_name.equalsIgnoreCase("BNE")) {
 				if(reg1_data==reg2_data) {
 					burn_cycle();
-					nullifyInstructions_branch();
+					nullifyInstructions_branch(cycle_num);
 					return false;
 				}else {
 					return true;
@@ -263,7 +264,7 @@ public class ID {
 			}else if(inst_name.equalsIgnoreCase("BEQ")) {
 				if(reg1_data!=reg2_data) {
 					burn_cycle();
-					nullifyInstructions_branch();
+					nullifyInstructions_branch(cycle_num);
 					return false;
 				}else {
 					return true;

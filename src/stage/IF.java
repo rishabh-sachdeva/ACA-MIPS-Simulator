@@ -2,6 +2,7 @@ package stage;
 
 import java.util.List;
 
+import cache.ICache;
 import entry.Simulator;
 import functionalUnits.MemoryUnit;
 import instructions.CycleMaintain;
@@ -53,7 +54,7 @@ public class IF {
 	}
 	public static void burn_cycle() {
 		curr_cycle++;
-		
+
 	}
 	public static void nullifyInstructions() {
 		if(curr_cycle>=cycle_count) {
@@ -74,12 +75,21 @@ public class IF {
 		}else if(branch_detected) {
 			branch_detected=false; // hack to skip one cycle
 		}
+		boolean cache_set=false;
 		if(instruction!=null) {
+			if(!ICache.search_cache(instruction)) {
+				cache_set = ICache.fill_cache(instructions, idx-1);
+
+				//return null;
+			}else if(ICache.handleKcycleRequiremnt()){
+				//handle k cycle requirement to search cache
+					cache_set = true;
+				}
 			busy= true;
 			burn_cycle();
 			String[] details = instruction.split(" ",2);
 			inst_name=details[0].trim();
-			if( ID.instruction==null && ID.inst_name==null) {
+			if( ID.instruction==null && ID.inst_name==null && cache_set) {
 				CycleMaintain stats = new CycleMaintain();
 				stats.setIF_end(cycle_num);
 				stats.setInstruction(instruction);
@@ -91,7 +101,8 @@ public class IF {
 				//idx++;
 			}
 			return inst_name;
-		}else {
+		}
+		else {
 			//IF is busy
 			return null;
 		}

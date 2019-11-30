@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import cache.DCache;
+import cache.ICache;
 import functionalUnits.Adder;
 import functionalUnits.Divider;
 import functionalUnits.FunctionalUnit;
@@ -57,10 +59,10 @@ public class ConfigParser {
 				MemoryUnit.cycle_count = Integer.parseInt(configuration[1].trim());
 				break;
 			case "i-cache":
-				//		System.out.println("I-Cache in config parser");
+				ICache.setK(Integer.parseInt(line.trim().split(":")[1].trim()));
 				break;
 			case "d-cache":
-				//	System.out.println("D-Cache in config parser");
+				DCache.setK(Integer.parseInt(line.trim().split(":")[1].trim()));
 				break;
 			}
 		}

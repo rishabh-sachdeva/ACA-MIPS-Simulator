@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import cache.ICache;
 import functionalUnits.Adder;
 import functionalUnits.Divider;
 import functionalUnits.FunctionalUnit;
@@ -57,6 +58,7 @@ public class Simulator {
 		ID.setUpAdderOps();
 		ID.setUpIntOps();
 		IF.setInstruction(instructions.get(0));
+		ICache.setUpCache();
 		while(cycle<1000) {
 			//WB.writeBack();
 			WB.writeBack(cycle);
