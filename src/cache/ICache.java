@@ -45,6 +45,7 @@ public class ICache {
 		}
 		return false;
 	}
+	static int index_replace = 0;
 	public static boolean fill_cache(List<String> inst_list,int idx) {
 		burn_cycle();
 		/*if(idx==1) {
@@ -59,7 +60,11 @@ public class ICache {
 			if(i_cache.size()<=block_num) {
 				i_cache.add(new_row);
 			}else {
-				i_cache.set(0, new_row);//LRU strategy
+				if(index_replace>=block_num) {
+					index_replace=0;
+				}
+				i_cache.set(index_replace, new_row);//LRU strategy
+				index_replace++;
 			}
 			curr_cycle=0;
 			return true;
