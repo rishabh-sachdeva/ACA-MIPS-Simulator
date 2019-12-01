@@ -1,5 +1,6 @@
 package stage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,6 +109,14 @@ public class ID {
 		case "HLT":
 			IF.instructions.clear();
 			System.out.println("HLT  "+  cycle_num);
+			cycle_stats.setID_end(cycle_num);
+
+			WB.add_result(cycle_stats);
+			try {
+				WB.writeToFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			ID.setInst_name(null);
 			ID.setInstruction(null);
 			return true;
@@ -145,6 +154,8 @@ public class ID {
 			if(inst_name.equalsIgnoreCase("BNE")|| inst_name.equalsIgnoreCase("J")
 					|| inst_name.equalsIgnoreCase("BEQ")) {
 				handle_branch_instructions(cycle_num);
+				cycle_stats.setID_end(cycle_num);
+				//WB.add_result(cycle_stats);
 				return true;
 			}
 			decodeThreeArgsIntInstructions(instruction);
@@ -238,6 +249,11 @@ public class ID {
 			curr_cycle=0;
 			busy = false;
 			System.out.println(instruction+"\t"+cycle_num);
+			/*try {
+				WB.writeToFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}*/
 			setInst_name(null);
 			setInstruction(null);
 		}		
@@ -257,8 +273,12 @@ public class ID {
 				if(reg1_data==reg2_data) {
 					burn_cycle();
 					nullifyInstructions_branch(cycle_num);
+					cycle_stats.setID_end(cycle_num);
+					WB.add_result(cycle_stats);
 					return false;
 				}else {
+					cycle_stats.setID_end(cycle_num);
+					WB.add_result(cycle_stats);
 					return true;
 				}
 			}else if(inst_name.equalsIgnoreCase("BEQ")) {

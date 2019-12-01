@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import cache.DCache;
 import cache.ICache;
 import functionalUnits.Adder;
 import functionalUnits.Divider;
@@ -22,12 +23,14 @@ import stage.WB;
 
 public class Simulator {
 	public static List<String> instructions;
+	public static String result_file;
 	public static void main(String[] args) throws IOException {
 		//PARSE THE FILES
 		String inst_file = args[0];
 		String config_file = args[1];
 		String data_file = args[2];
 		String reg_file = args[3];
+		result_file = args[4];
 		System.out.println("********PARSING INSTRUCTIONS****************");
 		InstParser.parse(inst_file);
 		System.out.println("********PARSING CONFIG****************");
@@ -59,15 +62,14 @@ public class Simulator {
 		ID.setUpIntOps();
 		IF.setInstruction(instructions.get(0));
 		ICache.setUpCache();
-		while(cycle<1000) {
-			//WB.writeBack();
+		DCache.setUpCacheSets();
+		while(cycle<10000) {
 			WB.writeBack(cycle);
 			Divider.execute(cycle);
 			Multiplier.execute(cycle);
 			Adder.execute(cycle);
 			MemoryUnit.execute(cycle);
 			functionalUnits.Integer.executeInstruction();
-			//Execute.execute();
 			ID.decode(cycle);
 			
 			IF.fetchInstruction(cycle);
