@@ -61,6 +61,8 @@ public class MemoryUnit implements FunctionalUnit{
 				busy = false;
 				setInst_name(null);
 				setInstruction(null);
+			}else {
+				cycle_stats.setStruct_hazard(true);
 			}
 		}
 	}
@@ -105,6 +107,8 @@ public class MemoryUnit implements FunctionalUnit{
 				busy = false;
 				setInst_name(null);
 				setInstruction(null);
+			}else {
+				cycle_stats.setStruct_hazard(true);
 			}
 		
 		}

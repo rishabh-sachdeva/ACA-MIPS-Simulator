@@ -75,6 +75,7 @@ public class Multiplier implements FunctionalUnit{
 			wb_pending=false;
 			wb_pending_instruction=null;
 		}else {
+			inst_obj.setStruct_hazard(true);
 			wb_pending_instruction = inst_obj;
 			wb_pending=true;
 		}

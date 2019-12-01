@@ -17,7 +17,7 @@ MUL.D F6, F1, F5    62	67	73	74	Y	N	N	N
 ADD.D F7, F2, F6    67	74	78	79	Y	N	N	N
 DADDI R4, R4, 4     79	80	82	83	N	N	N	N
 ADD.D F6, F1, F7    74	79	83	84	Y	N	N	N
-DADDI R5, R5, 4     80	81	84	85	N	N	N	N
+DADDI R5, R5, 4     80	81	84	85	N	N	N	Y
 DSUB R1, R1, R2     81	82	85	86	N	N	N	Y
 BNE R1, R3, GG      82	86	 	 	Y	N	N	N
 HLT                 86	87	 	 	N	N	N	N
