@@ -27,7 +27,7 @@ public class InstParser {
 				loop_map.put(details[0].trim(), idx);
 				line = details[1].trim();
 			}
-			instruction_list.add(line);
+			instruction_list.add(line.toUpperCase());
 			idx++;
 		}
 		br.close();
