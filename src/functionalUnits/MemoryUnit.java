@@ -15,7 +15,14 @@ public class MemoryUnit implements FunctionalUnit{
 	public static String inst_name;
 	public static CycleMaintain cycle_stats;
 	private static final int cycle_count_int_ops = 1;
+	public static boolean cache_busy=false;
 
+	public static boolean isCache_busy() {
+		return cache_busy;
+	}
+	public static void setCache_busy(boolean cache_busy) {
+		MemoryUnit.cache_busy = cache_busy;
+	}
 	static List<String> int_ops = new ArrayList<>();
 	public static void setIntOps() {
 		int_ops.add("DADDI");
@@ -70,7 +77,11 @@ public class MemoryUnit implements FunctionalUnit{
 	static int res1 = 0;
 	static int res2 = 0;
 	public static void burn_cycle_config(int cycle_num) {
-		curr_cycle++;
+		if(!MemoryUnit.isCache_busy()) {
+			curr_cycle++;
+		}else {
+			cycle_stats.setStruct_hazard(true);
+		}
 		//handle cache here
 		if(inst_name.endsWith(".D")) {
 			String[] details = instruction.trim().split(" ",2)[1].trim().split(",");
@@ -80,13 +91,24 @@ public class MemoryUnit implements FunctionalUnit{
 			int add = memory.Register.getRegList().get(java.lang.Integer.parseInt(reg_idx));
 
 			if(!just_searched) {
-				res1 = DCache.searchInCache(DCache.findFirstEntry(add+java.lang.Integer.parseInt(offset)));
-				res2 = DCache.searchInCache(DCache.findFirstEntry(add+java.lang.Integer.parseInt(offset)+4));
-				just_searched=true;
+				if(inst_name.contains("L.D")) {
+					res1 = DCache.searchInCache(DCache.findFirstEntry(add+java.lang.Integer.parseInt(offset)));
+					res2 = DCache.searchInCache(DCache.findFirstEntry(add+java.lang.Integer.parseInt(offset)+4));
+					just_searched=true;
+				}else if(inst_name.contains("S.D")) {
+					res1 = DCache.searchInCache_SD(DCache.findFirstEntry(add+java.lang.Integer.parseInt(offset)));
+					res2 = DCache.searchInCache_SD(DCache.findFirstEntry(add+java.lang.Integer.parseInt(offset)+4));
+					just_searched=true;
+
+				}
 			}
 			if(res1==-1 && res2==-1) {
 				//both miss
-				cycle_count=2*DCache.getK();
+				//cycle_count=2*DCache.getK();
+				cycle_count=2*DCache.getMiss_time();
+				if(inst_name.contains("S.D")) {
+					cycle_count+=2*DCache.getK();
+				}
 			}
 			else if(res1!=-1 && res2!=-1) {
 				//both hit
@@ -94,10 +116,38 @@ public class MemoryUnit implements FunctionalUnit{
 			}else if(res1!=-1 || res2!=-1) {
 				//one miss
 				cycle_count=DCache.getK() + DCache.getMiss_time();
+				if(inst_name.contains("S.D")) {
+					cycle_count+=DCache.getK();
+				}
 			} 
+		}else if(inst_name.endsWith("W")) {//LW or SW
+			String[] details = instruction.trim().split(" ",2)[1].trim().split(",");
+			int bracket_open_idx = details[1].trim().indexOf('(');
+			String reg_idx =(details[1].trim().substring(bracket_open_idx+2,details[1].trim().length()-1));
+			String offset = details[1].trim().substring(0, bracket_open_idx);
+			int add = memory.Register.getRegList().get(java.lang.Integer.parseInt(reg_idx));
+
+			if(!just_searched) {
+				if(inst_name.contains("LW")) {
+					res1 = DCache.searchInCache(DCache.findFirstEntry(add+java.lang.Integer.parseInt(offset)));
+					just_searched=true;
+				}else if(inst_name.contains("SW")) {
+					res1 = DCache.searchInCache_SD(DCache.findFirstEntry(add+java.lang.Integer.parseInt(offset)));
+					just_searched=true;							
+				}
+			}
+			if(res1==-1) {
+				// miss
+				cycle_count=DCache.getMiss_time();
+			}
+			else {
+				// hit
+				cycle_count=DCache.getK();
+			}
 		}
 		if(curr_cycle>=cycle_count) {
 			if(!WB.isBusy() && WB.getInst_name()==null && WB.getInstruction()==null) {
+				MemoryUnit.setCache_busy(false);
 				just_searched=false;
 				WB.setInst_name(inst_name);
 				WB.setInstruction(instruction);
@@ -110,7 +160,6 @@ public class MemoryUnit implements FunctionalUnit{
 			}else {
 				cycle_stats.setStruct_hazard(true);
 			}
-		
 		}
 	}
 	public static int getCurrCycle() {

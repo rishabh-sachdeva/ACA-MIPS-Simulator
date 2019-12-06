@@ -107,13 +107,14 @@ public class ID {
 		switch(inst_name) {
 
 		case "HLT":
+			IF.preFlush(cycle_num);
 			IF.instructions.clear();
 			System.out.println("HLT  "+  cycle_num);
 			cycle_stats.setID_end(cycle_num);
 
 			WB.add_result(cycle_stats);
 			try {
-				WB.writeToFile();
+				WB.writeCommand();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -141,6 +142,9 @@ public class ID {
 		case "SW":
 			fetchStoreDetails(instruction);
 			burn_cycle();
+			if(!checkHazards("Integer") && setIntegerUnit(cycle_num)) {
+				nullifyInstructions();
+			}
 			return true;
 		case "S.D":
 
@@ -234,6 +238,7 @@ public class ID {
 
 		}
 		if(label!=null && !label.isEmpty() && continue_loop(cycle_num)) {
+			IF.handleHLDcacheCount(cycle_num);
 			//flush fetch stage here
 			IF.idx=InstParser.loop_map.get(label.trim());//starting loop point
 			IF.setInstruction(null);
@@ -340,6 +345,11 @@ public class ID {
 		String[] rightPart = details[1].trim().split(",");
 		write_reg=rightPart[0].trim();
 		read_reg1=rightPart[1].trim();
+		if(inst_name.equals("S.D")) {
+			String temp = write_reg;
+			write_reg = read_reg1;
+			read_reg1=temp;
+		}
 		if(rightPart.length>2) {
 			read_reg2=rightPart[2].trim();
 		}

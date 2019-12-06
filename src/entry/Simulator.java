@@ -60,7 +60,7 @@ public class Simulator {
 		MemoryUnit.setIntOps();
 		ID.setUpAdderOps();
 		ID.setUpIntOps();
-		IF.setInstruction(instructions.get(0));
+		IF.setInstruction(instructions.get(0).trim());
 		ICache.setUpCache();
 		DCache.setUpCacheSets();
 		while(cycle<10000) {

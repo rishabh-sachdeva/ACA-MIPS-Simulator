@@ -5,6 +5,7 @@ import java.util.List;
 
 import cache.DCacheBlock.AddressAndData;
 import functionalUnits.MemoryUnit;
+import stage.WB;
 
 public class DCache {
 	public static int k; //d-cache from config
@@ -58,16 +59,42 @@ public class DCache {
 	@SuppressWarnings("static-access")
 	public static int searchInCache(int add) {
 		 int set01 = findRightSet(add);//0 or 1th set
+		 WB.setD_cache_request_total(WB.getD_cache_request_total()+1);
 		 if(cache_set.get(set01).getBlock1()!=null && 
+				 //!cache_set.get(set01).getBlock1().ifDirty && 
 				 findIfExist(cache_set.get(set01).getBlock1().getWord_list(),add)) {
 			 set_lru_block(set01,1);
+			 WB.setD_cache_request_hits(WB.getD_cache_request_hits()+1);
 			return memory.DataMemory.getDataList().get(add-OFFSET);
 		 }else if(cache_set.get(set01).getBlock2()!=null && 
+				 //!cache_set.get(set01).getBlock2().ifDirty && 
 				 findIfExist(cache_set.get(set01).getBlock2().getWord_list(),add)) {
 			 set_lru_block(set01,2);
+			 WB.setD_cache_request_hits(WB.getD_cache_request_hits()+1);
 			 return memory.DataMemory.getDataList().get(add-OFFSET);
 		 }else {
 			 insertInCache(add);
+			 return -1;
+		 }
+	}
+	@SuppressWarnings("static-access")
+	public static int searchInCache_SD(int add) {
+		 int set01 = findRightSet(add);//0 or 1th set
+		 WB.setD_cache_request_total(WB.getD_cache_request_total()+1);
+		 if(cache_set.get(set01).getBlock1()!=null && 
+				 //!cache_set.get(set01).getBlock1().ifDirty && 
+				 findIfExist(cache_set.get(set01).getBlock1().getWord_list(),add)) {
+			 set_lru_block(set01,1);
+			 WB.setD_cache_request_hits(WB.getD_cache_request_hits()+1);
+			return memory.DataMemory.getDataList().get(add-OFFSET);
+		 }else if(cache_set.get(set01).getBlock2()!=null && 
+				 //!cache_set.get(set01).getBlock1().ifDirty && 
+				 findIfExist(cache_set.get(set01).getBlock2().getWord_list(),add)) {
+			 set_lru_block(set01,2);
+			 WB.setD_cache_request_hits(WB.getD_cache_request_hits()+1);
+			 return memory.DataMemory.getDataList().get(add-OFFSET);
+		 }else {
+			 insertInCache_SD(add);
 			 return -1;
 		 }
 	}
@@ -87,19 +114,26 @@ public class DCache {
 			mru_set1 = block_in_set;
 		}
 	}
+	public static void insertInCache_SD(int address) {
+		int set01 = findRightSet(address);//0 or 1th set
+		insert(set01,address,true);//dirty it in SD 
+	}
+	
 	public static void insertInCache(int address) {
 		int set01 = findRightSet(address);//0 or 1th set
-		insert(set01,address);
+		insert(set01,address,false);//clean it in LD 
 	}
 	
 	@SuppressWarnings("static-access")
-	private static void insert(int set01, int address) {
+	private static void insert(int set01, int address, boolean dirty_flag) {
 		if(cache_set.get(set01).getBlock1()==null) {
 			DCacheBlock block1 = createNewBlock(address);
+			block1.setIfDirty(dirty_flag);//clean it in LD 
 			cache_set.get(set01).setBlock1(block1);
 		}else if(cache_set.get(set01).getBlock2()==null) {
 			DCacheBlock block2 = createNewBlock(address);
-			cache_set.get(set01).setBlock1(block2);
+			block2.setIfDirty(dirty_flag);//clean it in LD 
+			cache_set.get(set01).setBlock2(block2);
 		}else {
 			//LRU strategy
 			oveerride_least_recent_block(set01,address);

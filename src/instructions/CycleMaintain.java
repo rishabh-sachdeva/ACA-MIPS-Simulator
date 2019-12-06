@@ -8,6 +8,13 @@ public class CycleMaintain {
 	int final_src=-1;
 	int entry_FU = -1;
 	boolean struct_hazard=false;
+	String label = null;
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
+	}
 	public boolean isStruct_hazard() {
 		return struct_hazard;
 	}

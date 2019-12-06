@@ -7,6 +7,7 @@ public class DCacheBlock {
 	public static class AddressAndData{
 		int address;
 		int data;
+	
 		public int getAddress() {
 			return address;
 		}
@@ -19,6 +20,13 @@ public class DCacheBlock {
 		public void setData(int data) {
 			this.data = data;
 		}
+	}
+	boolean ifDirty;
+	public boolean isIfDirty() {
+		return ifDirty;
+	}
+	public void setIfDirty(boolean ifDirty) {
+		this.ifDirty = ifDirty;
 	}
 	List<AddressAndData> word_list = new ArrayList<>();//size must be 4
 	public List<AddressAndData> getWord_list() {

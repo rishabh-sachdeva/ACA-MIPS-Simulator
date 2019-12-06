@@ -13,7 +13,7 @@ public class Adder implements FunctionalUnit{
 	boolean busy = false;
 	static boolean wb_pending = false;
 
-	static Queue<CycleMaintain> queue = new LinkedList<>();
+	public static Queue<CycleMaintain> queue = new LinkedList<>();
 	private static CycleMaintain wb_pending_instruction; 
 
 	public boolean isBusy() {
