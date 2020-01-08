@@ -181,8 +181,8 @@ public class WB {
 		writer.write("Total number of access requests for data cache:  "+getD_cache_request_total()+System.lineSeparator());
 		writer.write(System.lineSeparator());
 		writer.write("Number of data cache hits: "+getD_cache_request_hits()+System.lineSeparator());
-
-
+		
+		System.out.println("****************File Writing Done*****************");
 		writer.close();
 	}
 	private static String statsToString(CycleMaintain stats) {

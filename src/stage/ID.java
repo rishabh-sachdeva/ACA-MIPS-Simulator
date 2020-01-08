@@ -307,11 +307,6 @@ public class ID {
 			cycle_stats.setRAW_hazard(true);
 			if_hazard=true;
 		}
-		/*if(functionalUnits.Integer.getInstruction()!=null
-				&& functionalUnits.Integer.getInst_name()!=null) {
-			cycle_stats.setStruct_hazard(true);
-			if_hazard=true;
-		}*/
 		return if_hazard;
 	}
 

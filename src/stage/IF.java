@@ -44,9 +44,6 @@ public class IF {
 	public static int getCycle_count() {
 		return cycle_count;
 	}
-
-
-
 	public boolean isBusy() {
 		return busy;
 	}
@@ -135,7 +132,7 @@ public class IF {
 		}
 		stats.setInstruction(instructions.get(idx-1));
 		WB.add_result(stats);
-		System.out.println(iffound);
+		//System.out.println(iffound);
 	}
 	public static void preFlush(int cycle_num) {
 		CycleMaintain stats = new CycleMaintain();
